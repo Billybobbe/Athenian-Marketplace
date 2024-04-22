@@ -3,9 +3,12 @@ import ReactDOM from 'react-dom/client';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
-import {createBrowserRouter, RouterProvider, Navigate} from "react-router-dom"
+import {createBrowserRouter, RouterProvider, Navigate, BrowserRouter, Route, Routes} from "react-router-dom"
 import ErrorPage from "./error-page"
-import BrowsePage from './pages/browsePage';
+import BrowsePage from './pages/BrowsePage';
+import LoginPage from './pages/LoginPage';
+import CreateAccountPage from './pages/CreateAccuntPage'
+import ResetAccountPage from './pages/ResetAccountPage';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const router = createBrowserRouter([{
@@ -16,12 +19,16 @@ const router = createBrowserRouter([{
 {
   path: '/browse',
   element: <BrowsePage/>
-}
+},
+{
+  path: '/login',
+  element: <LoginPage/>
+},
 ]);
 
 root.render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <RouterProvider router={router}/>
   </React.StrictMode>
 );
 
