@@ -9,6 +9,8 @@ import BrowsePage from './pages/BrowsePage';
 import LoginPage from './pages/LoginPage';
 import CreateAccountPage from './pages/CreateAccuntPage'
 import ResetAccountPage from './pages/ResetAccountPage';
+import CreateListingPage from './pages/CreateListingPage';
+import ListingPage from './pages/ListingPage';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const router = createBrowserRouter([{
@@ -19,6 +21,14 @@ const router = createBrowserRouter([{
 {
   path: '/browse',
   element: <BrowsePage/>
+},
+{
+  path: '/create',
+  element: <CreateListingPage/>
+},
+{
+  path: '/listing',
+  element: <ListingPage/>
 },
 {
   path: '/login',
