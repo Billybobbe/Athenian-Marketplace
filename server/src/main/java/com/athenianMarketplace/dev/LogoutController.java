@@ -1,6 +1,7 @@
 package com.athenianMarketplace.dev;
 
 import com.athenianMarketplace.dev.AuthKeys.AuthKeyRepository;
+import com.athenianMarketplace.dev.Responses.ServerResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -12,14 +13,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @RequestMapping("/logout")
 public class LogoutController {
     @Autowired
-    AuthKeyRepository authKeyRepository;
+    private AuthKeyRepository authKeyRepository;
 
     @PostMapping("/destroyAuthKey")
-    public @ResponseBody String logout(@RequestParam Integer authKeyId){
+    public @ResponseBody ServerResponse logout(@RequestParam Integer authKeyId){
         if(authKeyRepository.existsById(authKeyId)){
             authKeyRepository.deleteById(authKeyId);
-            return("Success. User logged out.");
+            return(new ServerResponse(0,"Success. User logged out."));
         }
-        return("Failed. Auth Key is invalid.");
+        return(new ServerResponse(0, "Failed. Auth Key is invalid."));
     }
 }

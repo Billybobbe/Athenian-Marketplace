@@ -3,5 +3,5 @@ package com.athenianMarketplace.dev.Users;
 import org.springframework.data.repository.CrudRepository;
 
 public interface UserRepository extends CrudRepository<User, Integer> {
-    User findByemail(String email);
+    User findByEmail(String email);
 }

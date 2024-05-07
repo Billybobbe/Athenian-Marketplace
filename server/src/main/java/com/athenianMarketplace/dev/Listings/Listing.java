@@ -5,6 +5,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -19,6 +20,7 @@ public class Listing {
     private String location;
     private List<String> imageIds;
     private Integer userId;
+    private LocalDateTime creationDate;
 
     public Integer getListingId() {
         return listingId;
@@ -82,5 +84,13 @@ public class Listing {
 
     public void setImageIds(List<String> imageIds){
         this.imageIds = imageIds;
+    }
+
+    public LocalDateTime getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(LocalDateTime creationDate) {
+        this.creationDate = creationDate;
     }
 }

@@ -1,11 +1,11 @@
 package com.athenianMarketplace.dev;
 
+import com.athenianMarketplace.dev.Responses.ServerResponse;
 import com.athenianMarketplace.dev.Users.User;
 import com.athenianMarketplace.dev.Users.UserRepository;
 import com.athenianMarketplace.dev.VerifyRequests.VerifyRequest;
 import com.athenianMarketplace.dev.VerifyRequests.VerifyRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.imageio.ImageIO;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -33,22 +32,22 @@ public class AccountCreationController{
     SecureRandom randomGenerator = new SecureRandom();
 
     @PostMapping("/registerAccountForVerification")
-    public @ResponseBody String registerAccountVerification(@RequestParam String email){
+    public @ResponseBody ServerResponse registerAccountVerification(@RequestParam String email){
         if(!email.contains("@athenian.org")){
-            return("Failed. Email not part of Athenian domain.");
+            return(new ServerResponse(0,"Failed. Email not part of Athenian domain."));
         }
 
-        if(userRepository.findByemail(email)!=null){ //Account does not exist yet
+        if(userRepository.findByEmail(email)!=null){ //Account does not exist yet
             VerifyRequest v = verifyRequestRepository.findByemail(email);
             if(v!=null){
                 if(Duration.between(LocalDateTime.now(), v.getExpiration()).toMinutes()>1){ //If older than a minute we can change the code
                     Integer code = randomGenerator.nextInt(1000000);
                     v.setCode(code);
                     v.setExpiration(LocalDateTime.now());
-                    return("Success.");
+                    return(new ServerResponse(0,"Success."));
                 }
                 else{
-                    return("Failed. Verification key cannot be regenerated more than once per minute.");
+                    return(new ServerResponse(1, "Failed. Verification key cannot be regenerated more than once per minute."));
                 }
             }
             else {
@@ -57,15 +56,15 @@ public class AccountCreationController{
                 newRequest.setExpiration(LocalDateTime.now());
                 newRequest.setCode(randomGenerator.nextInt(1000000));
                 verifyRequestRepository.save(newRequest);
-                return ("Success.");
+                return(new ServerResponse(0, "Success."));
             }
         }
         else{
-            return("Failed. Email already associated with existing account.");
+            return(new ServerResponse(1, "Failed. Email already associated with existing account."));
         }
     }
     @PostMapping("/registerAccount")
-    public @ResponseBody String registerAccount(@RequestParam String email, @RequestParam Integer code,
+    public @ResponseBody ServerResponse registerAccount(@RequestParam String email, @RequestParam Integer code,
                                                 @RequestParam String password, @RequestParam String name,
                                                 @RequestParam BufferedImage photo){
         VerifyRequest v = verifyRequestRepository.findByemail(email);
@@ -76,10 +75,10 @@ public class AccountCreationController{
             newUser.setAccountPhotoId(saveImage(photo));
             userRepository.save(newUser);
             verifyRequestRepository.delete(v);
-            return("Success.");
+            return(new ServerResponse(0, "Success."));
         }
         else {
-            return("Failed. Code does not match or email not registered.");
+            return(new ServerResponse(1, "Failed. Code does not match or email not registered."));
         }
     }
     private String saveImage(BufferedImage image){

@@ -2,14 +2,12 @@ package com.athenianMarketplace.dev;
 
 import com.athenianMarketplace.dev.AuthKeys.AuthKey;
 import com.athenianMarketplace.dev.AuthKeys.AuthKeyRepository;
+import com.athenianMarketplace.dev.Responses.ServerResponse;
 import com.athenianMarketplace.dev.Users.User;
 import com.athenianMarketplace.dev.Users.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
@@ -17,24 +15,24 @@ import java.time.LocalDateTime;
 @RequestMapping("/login")
 public class LoginController {
     @Autowired
-    AuthKeyRepository authKeyRepository;
+    private AuthKeyRepository authKeyRepository;
     @Autowired
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
-    @PostMapping("/getAuthKey")
-    public @ResponseBody String getAuthKey(@RequestParam String email, @RequestParam String password){
-        User requestedUser = userRepository.findByemail(email);
+    @GetMapping("/getAuthKey")
+    public @ResponseBody ServerResponse getAuthKey(@RequestParam String email, @RequestParam String password){
+        User requestedUser = userRepository.findByEmail(email);
         if(requestedUser==null){
-            return("Failed. Email address does not exist");
+            return(new ServerResponse(1, "Failed. Email address does not exist"));
         }
         if(!requestedUser.getPassword().equals(password)){
-            return("Failed. Email address and password do not match");
+            return(new ServerResponse(1, "Failed. Email address and password do not match"));
         }
 
         AuthKey key = new AuthKey();
         key.setUserId(requestedUser.getId());
         key.setExpiration(LocalDateTime.now());
         key = authKeyRepository.save(key);
-        return(key.getKeyId().toString());
+        return(new ServerResponse(0, key.getKeyId().toString()));
     }
 }
