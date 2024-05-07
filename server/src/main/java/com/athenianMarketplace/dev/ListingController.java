@@ -3,6 +3,7 @@ package com.athenianMarketplace.dev;
 import com.athenianMarketplace.dev.AuthKeys.AuthKeyRepository;
 import com.athenianMarketplace.dev.Listings.Listing;
 import com.athenianMarketplace.dev.Listings.ListingRepository;
+import com.athenianMarketplace.dev.Responses.ListingQueryResponse;
 import com.athenianMarketplace.dev.Responses.ListingResponse;
 import com.athenianMarketplace.dev.Responses.ServerResponse;
 import com.athenianMarketplace.dev.Users.User;
@@ -28,7 +29,29 @@ public class ListingController {
     private AuthKeyRepository authKeyRepository;
     @Autowired
 
-    @GetMapping("/{id}")
+    @PostMapping("/getAllWithAttrib")
+    public @ResponseBody ListingQueryResponse getAllWithAttrib(@RequestParam Integer authKey, @RequestParam Integer minPrice, @RequestParam Integer maxPrice,
+                                                               @RequestParam List<String> keywords, @RequestParam String condition){
+        if(!authKeyRepository.existsById(authKey)){
+            return(new ListingQueryResponse(1, "Auth key invalid", null));
+        }
+        List<Integer> allListingIds = new ArrayList<>();
+        if(keywords.size()>20){
+            return(new ListingQueryResponse(1, "Too many search terms", null));
+        }
+        if(keywords.size()==0){ //if nothing specified we search all listings
+            keywords.add("*");
+        }
+        if(condition.equals("")){ //if no condition specified search all
+            condition = "*";
+        }
+        for(String keyword : keywords){
+            allListingIds.addAll(listingRepository.findByPriceAndFilter(minPrice, maxPrice, keyword, condition));
+        }
+        return(new ListingQueryResponse(0, "Success", allListingIds));
+    }
+
+    @PostMapping("/{id}")
     public @ResponseBody ListingResponse getListing(@RequestParam Integer authKey, @PathVariable Integer listingId){
         if(authKeyRepository.existsById(authKey)){
             if(listingRepository.existsById(listingId)){
@@ -60,6 +83,8 @@ public class ListingController {
         newListing.setLocation(location);
         newListing.setCondition(itemCondition);
         newListing.setCreationDate(LocalDateTime.now());
+        newListing.setImageIds(imagePaths);
+        listingRepository.save(newListing);
         return(new ServerResponse(0, "Success."));
     }
     private List<String> saveListingImages(List<BufferedImage> images){

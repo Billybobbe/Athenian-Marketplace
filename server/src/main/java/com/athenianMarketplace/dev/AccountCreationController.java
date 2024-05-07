@@ -1,5 +1,6 @@
 package com.athenianMarketplace.dev;
 
+import com.athenianMarketplace.dev.Mail.MailSender;
 import com.athenianMarketplace.dev.Responses.ServerResponse;
 import com.athenianMarketplace.dev.Users.User;
 import com.athenianMarketplace.dev.Users.UserRepository;
@@ -33,7 +34,7 @@ public class AccountCreationController{
 
     @PostMapping("/registerAccountForVerification")
     public @ResponseBody ServerResponse registerAccountVerification(@RequestParam String email){
-        if(!email.contains("@athenian.org")){
+        if(!email.endsWith("@athenian.org")){
             return(new ServerResponse(0,"Failed. Email not part of Athenian domain."));
         }
 
@@ -54,8 +55,10 @@ public class AccountCreationController{
                 VerifyRequest newRequest = new VerifyRequest();
                 newRequest.setEmail(email);
                 newRequest.setExpiration(LocalDateTime.now());
-                newRequest.setCode(randomGenerator.nextInt(1000000));
+                Integer code = randomGenerator.nextInt(1000000);
+                newRequest.setCode(code);
                 verifyRequestRepository.save(newRequest);
+                MailSender.sendEmail(email, "Authentication Key for AtheniansList", "Your authentication key is " + code +". Do not share this with anyone.");
                 return(new ServerResponse(0, "Success."));
             }
         }
@@ -68,6 +71,9 @@ public class AccountCreationController{
                                                 @RequestParam String password, @RequestParam String name,
                                                 @RequestParam BufferedImage photo){
         VerifyRequest v = verifyRequestRepository.findByemail(email);
+        if(userRepository.findByEmail(email)!=null){
+            return(new ServerResponse(1, "Failed. User already exists."));
+        }
         if(v!=null && v.getCode()==code && Duration.between(LocalDateTime.now(), v.getExpiration()).toMinutes()<=15){
             User newUser = new User();
             newUser.setPassword(password);
