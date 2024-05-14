@@ -2,7 +2,7 @@ package com.athenianMarketplace.dev;
 
 import com.athenianMarketplace.dev.AuthKeys.AuthKey;
 import com.athenianMarketplace.dev.AuthKeys.AuthKeyRepository;
-import com.athenianMarketplace.dev.Mail.MailSender;
+import com.athenianMarketplace.dev.Mail.SiteMailSender;
 import com.athenianMarketplace.dev.Responses.ServerResponse;
 import com.athenianMarketplace.dev.Users.User;
 import com.athenianMarketplace.dev.Users.UserRepository;
@@ -26,6 +26,8 @@ public class LoginController {
     private UserRepository userRepository;
     @Autowired
     private VerifyRequestRepository verifyRequestRepository;
+    @Autowired
+    private SiteMailSender siteMailSender;
 
     @PostMapping("/getAuthKey")
     public @ResponseBody ServerResponse getAuthKey(@RequestParam String email, @RequestParam String password){
@@ -54,7 +56,7 @@ public class LoginController {
             Integer code = randomGenerator.nextInt(1000000);
             verifyRequest.setCode(code);
             verifyRequestRepository.save(verifyRequest);
-            MailSender.sendEmail(email, "Authentication code for password reset", "Your authentication code is " + code + ". Do not share this with anyone.");
+            siteMailSender.sendEmail(email, "Authentication code for password reset", "Your authentication code is " + code + ". Do not share this with anyone.");
             return(new ServerResponse(0, "Success."));
         }
         if(Duration.between(LocalDateTime.now(), verifyRequestRepository.findByemail(email).getExpiration()).toMinutes() < 1){
@@ -63,7 +65,7 @@ public class LoginController {
         VerifyRequest existingVerifyRequest = verifyRequestRepository.findByemail(email);
         Integer code = randomGenerator.nextInt(1000000);
         existingVerifyRequest.setCode(code);
-        MailSender.sendEmail(email, "Authentication code for password reset", "Your authentication code is " + code + ". Do not share this with anyone.");
+        siteMailSender.sendEmail(email, "Authentication code for password reset", "Your authentication code is " + code + ". Do not share this with anyone.");
         return(new ServerResponse(0, "Success."));
     }
     @PostMapping("/forgotPassword/reset")

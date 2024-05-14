@@ -7,7 +7,7 @@ import {createBrowserRouter, RouterProvider, Navigate, BrowserRouter, Route, Rou
 import ErrorPage from "./error-page"
 import BrowsePage from './pages/BrowsePage';
 import LoginPage from './pages/LoginPage';
-import CreateAccountPage from './pages/CreateAccuntPage'
+import CreateAccountPage from './pages/CreateAccount'
 import ResetAccountPage from './pages/ResetAccountPage';
 import CreateListingPage from './pages/CreateListingPage';
 import ListingPage from './pages/ListingPage';
@@ -33,6 +33,10 @@ const router = createBrowserRouter([{
 {
   path: '/login',
   element: <LoginPage/>
+},
+{
+  path: '/create-account',
+  element: <CreateAccountPage/>
 },
 ]);
 

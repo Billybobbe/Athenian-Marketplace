@@ -19,7 +19,7 @@ public class ListingExpiration {
     public void deleteExpiredListings(){
         Iterable<Listing> listings = listingRepository.findAll();
         for(Listing listing : listings){
-            if(Duration.between(LocalDateTime.now(), listing.getCreationDate()).toDays() > 90){
+            if(Duration.between(listing.getCreationDate(), LocalDateTime.now()).toDays() > 90){
                 listingRepository.delete(listing);
             }
         }

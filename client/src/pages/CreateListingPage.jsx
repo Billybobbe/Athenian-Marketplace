@@ -5,7 +5,7 @@ var price;
 var title;
 var location;
 var description;
-var condition;
+var condition = 0;
 
 export default function CreateListingPage(){
     const [categoryConfig, setCategoryConfig] = useState([["Model year", "int"], ["Milage", "string"], ["Model Name", "string"]]);

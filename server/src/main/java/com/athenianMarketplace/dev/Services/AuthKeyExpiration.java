@@ -18,7 +18,7 @@ public class AuthKeyExpiration {
     public void deleteExpiredKeys(){
         Iterable<AuthKey> keys = authKeyRepository.findAll();
         for (AuthKey key : keys) {
-            if(Duration.between(LocalDateTime.now(), key.getExpiration()).toDays()>30){
+            if(Duration.between(key.getExpiration(), LocalDateTime.now()).toDays()>30){
                 authKeyRepository.delete(key);
             }
         }

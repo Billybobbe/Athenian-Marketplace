@@ -1,6 +1,7 @@
 package com.athenianMarketplace.dev;
 
 import com.athenianMarketplace.dev.AuthKeys.AuthKeyRepository;
+import com.athenianMarketplace.dev.Responses.ServerResponse;
 import com.athenianMarketplace.dev.Responses.UserResponse;
 import com.athenianMarketplace.dev.Users.User;
 import com.athenianMarketplace.dev.Users.UserRepository;
@@ -32,6 +33,15 @@ public class UserController {
         User foundUser = userRepository.findById(userId).get();
         return(new UserResponse(0, "Success.", foundUser.getName(), foundUser.getEmail(), loadImage(foundUser.getAccountPhotoId())));
     }
+    @PostMapping("/authKeyUser")
+    public @ResponseBody UserResponse getByAuthKey(@RequestParam Integer authKey){
+        if(!authKeyRepository.existsById(authKey)){
+            return(new UserResponse(1, "Failed. Auth key invalid."));
+        }
+        User authKeyUser = userRepository.findById(authKeyRepository.findById(authKey).get().getUserId()).get();
+        return(new UserResponse(0, "Success.", authKeyUser.getName(), authKeyUser.getEmail(), loadImage(authKeyUser.getAccountPhotoId())));
+    }
+
     private BufferedImage loadImage(String imagePath){
         File imageFile = new File(imagePath+".jpg");
         BufferedImage image = null;

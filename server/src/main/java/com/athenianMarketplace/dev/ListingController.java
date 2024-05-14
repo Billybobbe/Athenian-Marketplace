@@ -18,7 +18,9 @@ import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/listing")
@@ -27,11 +29,10 @@ public class ListingController {
     private ListingRepository listingRepository;
     @Autowired
     private AuthKeyRepository authKeyRepository;
-    @Autowired
 
     @PostMapping("/getAllWithAttrib")
     public @ResponseBody ListingQueryResponse getAllWithAttrib(@RequestParam Integer authKey, @RequestParam Integer minPrice, @RequestParam Integer maxPrice,
-                                                               @RequestParam List<String> keywords, @RequestParam String condition){
+                                                               @RequestParam List<String> keywords, @RequestParam List<Integer> condition){
         if(!authKeyRepository.existsById(authKey)){
             return(new ListingQueryResponse(1, "Auth key invalid", null));
         }
@@ -42,11 +43,16 @@ public class ListingController {
         if(keywords.size()==0){ //if nothing specified we search all listings
             keywords.add("*");
         }
-        if(condition.equals("")){ //if no condition specified search all
-            condition = "*";
+        if(condition.size()==0){ //if no condition specified search all
+            condition.add(0);
+            condition.add(1);
+            condition.add(2);
+            condition.add(3);
         }
         for(String keyword : keywords){
-            allListingIds.addAll(listingRepository.findByPriceAndFilter(minPrice, maxPrice, keyword, condition));
+            for(Integer c : condition){
+                allListingIds.addAll(listingRepository.findByPriceAndFilter(minPrice, maxPrice, keyword, c));
+            }
         }
         return(new ListingQueryResponse(0, "Success", allListingIds));
     }
@@ -90,7 +96,7 @@ public class ListingController {
     private List<String> saveListingImages(List<BufferedImage> images){
         List<String> savedImagePaths = new ArrayList<>();
         for(BufferedImage image : images){
-            String imageName = ""; //need to figure out generation method for this.
+            String imageName = UUID.randomUUID().toString();
             File imageFile = new File(imageName+".jpg");
             try{
                 ImageIO.write(image, "jpg", imageFile);

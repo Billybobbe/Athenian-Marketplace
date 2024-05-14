@@ -18,7 +18,7 @@ public class VerifyRequestExpiration {
     public void deleteExpiredVerifyRequests(){
         Iterable<VerifyRequest> verifyRequests = verifyRequestRepository.findAll();
         for(VerifyRequest v : verifyRequests){
-            if(Duration.between(LocalDateTime.now(), v.getExpiration()).toMinutes()>15){
+            if(Duration.between(v.getExpiration(), LocalDateTime.now()).toMinutes()>15){
                 verifyRequestRepository.delete(v);
             }
         }
