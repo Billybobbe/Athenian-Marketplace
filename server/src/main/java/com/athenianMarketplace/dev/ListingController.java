@@ -3,11 +3,15 @@ package com.athenianMarketplace.dev;
 import com.athenianMarketplace.dev.AuthKeys.AuthKeyRepository;
 import com.athenianMarketplace.dev.Listings.Listing;
 import com.athenianMarketplace.dev.Listings.ListingRepository;
+import com.athenianMarketplace.dev.Requests.ListingQueryRequest;
+import com.athenianMarketplace.dev.Requests.UniqueListingRequest;
+import com.athenianMarketplace.dev.Responses.ListingPhotoResponse;
 import com.athenianMarketplace.dev.Responses.ListingQueryResponse;
 import com.athenianMarketplace.dev.Responses.ListingResponse;
 import com.athenianMarketplace.dev.Responses.ServerResponse;
 import com.athenianMarketplace.dev.Users.User;
 import com.athenianMarketplace.dev.Users.UserRepository;
+import org.aspectj.util.FileUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -17,10 +21,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Controller
 @RequestMapping("/listing")
@@ -31,37 +32,60 @@ public class ListingController {
     private AuthKeyRepository authKeyRepository;
 
     @PostMapping("/getAllWithAttrib")
-    public @ResponseBody ListingQueryResponse getAllWithAttrib(@RequestParam Integer authKey, @RequestParam Integer minPrice, @RequestParam Integer maxPrice,
-                                                               @RequestParam List<String> keywords, @RequestParam List<Integer> condition){
-        if(!authKeyRepository.existsById(authKey)){
+    public @ResponseBody ListingQueryResponse getAllWithAttrib(@RequestBody ListingQueryRequest request){
+        if(!authKeyRepository.existsById(request.authkey)){
             return(new ListingQueryResponse(1, "Auth key invalid", null));
         }
         List<Integer> allListingIds = new ArrayList<>();
-        if(keywords.size()>20){
-            return(new ListingQueryResponse(1, "Too many search terms", null));
+        if(request.keywords.size()>20){
+            return(new ListingQueryResponse(2, "Too many search terms", null));
         }
-        if(keywords.size()==0){ //if nothing specified we search all listings
-            keywords.add("*");
+        if(request.keywords.size()==0){ //if nothing specified we search all listings
+            request.keywords.add("*");
         }
-        if(condition.size()==0){ //if no condition specified search all
-            condition.add(0);
-            condition.add(1);
-            condition.add(2);
-            condition.add(3);
+        if(request.condition.size()==0){ //if no condition specified search all
+            request.condition.add(0);
+            request.condition.add(1);
+            request.condition.add(2);
+            request.condition.add(3);
         }
-        for(String keyword : keywords){
-            for(Integer c : condition){
-                allListingIds.addAll(listingRepository.findByPriceAndFilter(minPrice, maxPrice, keyword, c));
+        for(String keyword : request.keywords){
+            for(Integer c : request.condition){
+                allListingIds.addAll(listingRepository.findByPriceAndFilter(request.minPrice, request.maxPrice, keyword, c));
             }
         }
         return(new ListingQueryResponse(0, "Success", allListingIds));
     }
 
+    @PostMapping("/getPhoto")
+    public @ResponseBody ListingPhotoResponse getListingPhoto(@RequestBody Map<String, String> params) {
+        String authKey = params.get("authKey");
+        try {
+            Integer.parseInt(authKey);
+        } catch (NumberFormatException n) {
+            return (new ListingPhotoResponse(1, "Failed. Auth key not valid", null));
+        }
+        if (!authKeyRepository.existsById(Integer.parseInt(authKey))) {
+            return (new ListingPhotoResponse(1, "Failed. Auth key not valid.", null));
+        }
+        String photoId = params.get("imageId");
+        File imageFile = new File("/listingImages/" + photoId + ".jpg");
+        byte[] imageContent;
+        try {
+            imageContent = FileUtil.readAsByteArray(imageFile);
+        } catch (IOException e) {
+            System.out.println("File conversion failed");
+            return (new ListingPhotoResponse(1, "Failed. Image conversion failed.", null));
+        }
+        String encodeFile = Base64.getEncoder().encodeToString(imageContent);
+        return(new ListingPhotoResponse(0, "Success.", encodeFile));
+    }
+
     @PostMapping("/{id}")
-    public @ResponseBody ListingResponse getListing(@RequestParam Integer authKey, @PathVariable Integer listingId){
-        if(authKeyRepository.existsById(authKey)){
-            if(listingRepository.existsById(listingId)){
-                return(new ListingResponse(0, "", listingRepository.findById(listingId).get()));
+    public @ResponseBody ListingResponse getListing(@RequestBody UniqueListingRequest request){
+        if(authKeyRepository.existsById(request.authKey)){
+            if(listingRepository.existsById(request.listingId)){
+                return(new ListingResponse(0, "", listingRepository.findById(request.listingId).get()));
             }
             else{
                 return(new ListingResponse(1, "Listing id invalid", null));
@@ -97,7 +121,7 @@ public class ListingController {
         List<String> savedImagePaths = new ArrayList<>();
         for(BufferedImage image : images){
             String imageName = UUID.randomUUID().toString();
-            File imageFile = new File(imageName+".jpg");
+            File imageFile = new File("/listingImages/" + imageName + ".jpg");
             try{
                 ImageIO.write(image, "jpg", imageFile);
             } catch(IOException e){

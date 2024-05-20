@@ -3,6 +3,7 @@ package com.athenianMarketplace.dev;
 import com.athenianMarketplace.dev.AuthKeys.AuthKey;
 import com.athenianMarketplace.dev.AuthKeys.AuthKeyRepository;
 import com.athenianMarketplace.dev.Mail.SiteMailSender;
+import com.athenianMarketplace.dev.Requests.LoginRequest;
 import com.athenianMarketplace.dev.Responses.ServerResponse;
 import com.athenianMarketplace.dev.Users.User;
 import com.athenianMarketplace.dev.Users.UserRepository;
@@ -30,12 +31,12 @@ public class LoginController {
     private SiteMailSender siteMailSender;
 
     @PostMapping("/getAuthKey")
-    public @ResponseBody ServerResponse getAuthKey(@RequestParam String email, @RequestParam String password){
-        User requestedUser = userRepository.findByEmail(email);
+    public @ResponseBody ServerResponse getAuthKey(@RequestBody LoginRequest loginRequest){
+        User requestedUser = userRepository.findByEmail(loginRequest.email);
         if(requestedUser==null){
             return(new ServerResponse(1, "Failed. Email address does not exist"));
         }
-        if(!requestedUser.getPassword().equals(password)){
+        if(!requestedUser.getPassword().equals(loginRequest.password)){
             return(new ServerResponse(1, "Failed. Email address and password do not match"));
         }
 

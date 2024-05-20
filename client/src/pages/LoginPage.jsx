@@ -1,6 +1,4 @@
 import {useState} from 'react'
-var userName;
-var password;
 
 export default function LoginPage(){
     const [error, setError] = useState(null);
@@ -17,8 +15,8 @@ export default function LoginPage(){
                 <input type="password" placeholder="Enter Account Password" value={password} onChange={(value)=>setPassword(value.target.value)}/>
                 <button style={{marginTop: 30}} onClick={()=>login(email, password, setError)}>Login</button>
                 <div id="additionalOptions" style={{marginTop: 30}}>
-                    <button onMouseDown={createAccount()}>Create Account</button>
-                    <button onMouseDown={resetPassword()}>Forgot Password?</button>
+                    <button onMouseDown={createAccount}>Create Account</button>
+                    <button onMouseDown={resetPassword}>Forgot Password?</button>
                 </div>
                 <text>{error}</text>
             </div>
@@ -45,10 +43,10 @@ function login(email, password, setError){
     })
 }
 function createAccount(){
-    //navigate to account creation page
+    window.location.href = "/create-account";
 }
 function resetPassword(){
-    //navigate to password reset page
+    window.location.href = "/forgot-account";
 }
 
 const styles = {

@@ -38,6 +38,10 @@ const router = createBrowserRouter([{
   path: '/create-account',
   element: <CreateAccountPage/>
 },
+{
+  path: '/forgot-account',
+  element: <ResetAccountPage/>
+},
 ]);
 
 root.render(

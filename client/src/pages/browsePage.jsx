@@ -11,40 +11,17 @@ export default function BrowsePage(){
     const [searchFilter, setSearchFilter] = useState("");
     const [listingID, setListingID] = useState(null);
 
+    var listings = loadListings(authToken, price, searchFilter);
+
     return(
         <div id="main">
         <HeaderBox/>
         <div id="page" >
             {listingID==null &&
                 <div id="listingsOverview" style={styles.listingPage}>
-                    <BrowseSideBar minPrice={minPrice} price={price} setPrice={setPrice} filter={searchFilter} setFilter={setSearchFilter}/>
+                    <BrowseSideBar price={price} setPrice={setPrice} filter={searchFilter} setFilter={setSearchFilter}/>
                     <div id="listings" style={styles.listings}>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
-                        <ListingTile image={"https://cdn.britannica.com/22/187222-050-07B17FB6/apples-on-a-tree-branch.jpg"} title={"Apple"} price={500} location={"tree"}/>
+                        
         
                     </div>
                 </div>
@@ -55,6 +32,29 @@ export default function BrowsePage(){
         </div>
     </div>
     );
+}
+function loadListings(authToken, price, searchFilter){
+    var requestData = {"authkey" : authToken, "minPrice" : price[0], "maxPrice" : price[1], "keywords" : searchFilter};
+    fetch("/getAllWithAttrib", {
+        method: "POST",
+        headers: {
+            "Content-type" : "application/json",
+        },
+        body: JSON.stringify(requestData),
+    }).then(response=>response.json()).then(data=>{
+        if(data.error == "1"){
+            window.location.href = "/login";
+        }
+        if(data.error == "0"){
+            buildListings(authToken, data.listings);
+        }
+    })
+}
+function buildListings(authToken, listingIds){
+    var listingList = {};
+    for(var i = 0; i < listingIds.length(); i++){
+        var listing = <ListingTile image={}/>
+    }
 }
 
 const styles = {
