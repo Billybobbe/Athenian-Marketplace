@@ -1,13 +1,14 @@
+import { useState } from "react";
 import RangeSlider from "react-range-slider-input"
 import 'react-range-slider-input/dist/style.css'
-export default function BrowseSideBar({startSearch, price, setPrice, filter, setFilter}){
+export default function BrowseSideBar({startSearch, price, setPrice, listingsNearby, setFilter}){
     return(
         <div id="browseSidebar" style={styles.browseSideBar}>
             <div id="searchSegment">
-                <text>0 Listings Nearby</text>
+                <text>{listingsNearby} Listings Nearby</text>
                 <div id="searchBox">
-                    <input type="text" placeholder="Enter filters here" style={styles.searchField.searchBox}/>
-                    <button style={styles.searchField.searchButton}><img style={styles.searchField.searchButton.buttonImage} src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Search_Icon.svg/2048px-Search_Icon.svg.png"/></button>
+                    <input type="text" placeholder="Enter filters here" style={styles.searchField.searchBox} onChange={(value)=>{setFilter(value.target.value)}}/>
+                    <button style={styles.searchField.searchButton}><img style={styles.searchField.searchButton.buttonImage} src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Search_Icon.svg/2048px-Search_Icon.svg.png" onMouseDown={startSearch}/></button>
                 </div>  
             </div>
             <div id="priceSegment">
@@ -21,6 +22,7 @@ export default function BrowseSideBar({startSearch, price, setPrice, filter, set
         </div>
     )
 }
+
 
 const styles = {
     browseSideBar: {
@@ -66,7 +68,7 @@ const styles = {
             border: "2px solid rgba(15, 15, 15, 1)",
             borderRadius: 3,
             boxShadow: "rgba(255, 255, 255, .4) 0 1px 0 0 inset",
-            width: 150,
+            width: "70%",
             height: 20,
             
        },

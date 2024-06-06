@@ -87,6 +87,7 @@ public class AccountCreationController{
             newUser.setEmail(request.email);
             newUser.setPassword(request.password);
             newUser.setName(request.name);
+            newUser.setJoinDate(LocalDateTime.now());
             newUser = userRepository.saveAndFlush(newUser);
             newUser.setAccountPhotoId(saveImage(request.photo)); // we do this after so the thread doesn't hang and have the potential to add multiple entries at once.
             System.out.println(newUser.getId());
@@ -110,7 +111,7 @@ public class AccountCreationController{
             System.out.println("Failed to save image :(");
         }
         String imageName = UUID.randomUUID().toString();
-        File imageFile = new File("/userImages/" + imageName + ".jpg");
+        File imageFile = new File("./res/userImages/" + imageName + ".jpg");
         try{
             ImageIO.write(image, "jpg", imageFile);
         } catch(IOException e){

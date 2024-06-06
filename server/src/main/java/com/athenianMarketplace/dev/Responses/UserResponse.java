@@ -7,13 +7,16 @@ public class UserResponse{
     public String message;
     public String userName;
     public String email;
-    public BufferedImage photo;
-    public UserResponse(int error, String message, String userName, String email, BufferedImage photo){
+    public String photoURL;
+    public String joinDate;
+
+    public UserResponse(int error, String message, String userName, String email, String photoURL, String joinDate){
         this.error = error;
         this.message = message;
         this.userName = userName;
         this.email = email;
-        this.photo = photo;
+        this.photoURL = photoURL;
+        this.joinDate = joinDate;
     }
     public UserResponse(int error, String message){
         this.error = error;

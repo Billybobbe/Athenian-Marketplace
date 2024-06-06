@@ -1,8 +1,16 @@
-export default function SellerInfo({sellerID}){
-    const imageSrc = "https://assets.vogue.com/photos/6327939f06377e01c5304296/master/pass/Fc9-RcUXgAEgljY.jpeg"
-    const sellerName = "Mary Jane"
-    const joinDate = 2006;
-    const gradDate = 2024;
+
+import {useState} from 'react'
+import { API } from '../App';
+
+export default function SellerInfo({authKey, sellerID, listingName}){
+    const [imageSrc, setImageSrc] = useState(API + "/listing/getPhoto?imageID=undefined");
+    const [sellerName, setSellerName] = useState("");
+    const [joinDate, setJoinDate] = useState(null);
+    const [gradDate, setGradDate] = useState(null);
+    const [email, setEmail] = useState(null);
+
+    loadInfo(authKey, sellerID, setSellerName, setJoinDate, setGradDate, setEmail, setImageSrc);
+
     return(
         <div id="SellerInfo" style={styles.accountMainBox}>
             <div id="nameAndPhoto" style={styles.nameAndPhoto}>
@@ -11,12 +19,32 @@ export default function SellerInfo({sellerID}){
             </div>
             <text>Joined {joinDate}</text>
             <text>Graduating in {gradDate}</text>
-            <button style={{marginTop: 40}}>Message</button>
+            <button style={{marginTop: 40}} onMouseDown={()=>messageSeller(email, listingName)}>Message</button>
         </div>
     );
 }
-function messageSeller(){
-    console.log("messaging seller or something.");
+function messageSeller(email, listingName){
+    window.open("https://mail.google.com/mail/?view=cm&fs=1&to="+email+"&su=" + listingName);
+}
+function loadInfo(authKey, sellerID, setSellerName, setJoinDate, setGradDate, setEmail, setImageSrc){
+    var params = {"authKey" : authKey, "userId" : sellerID};
+    fetch(API + "/users/" + sellerID, {
+        method: "POST",
+        headers: {
+            "Content-type" : "application/json",
+        },
+        body: JSON.stringify(params),
+    }).then(response=>response.json()).then(data=>{
+        console.log(data.error);
+        if(data.error == "0"){
+            setSellerName(data.userName);
+            setJoinDate(data.joinDate);
+            var gradDate = data.email.substring(0, 2);
+            setGradDate("20"+gradDate);
+            setImageSrc(API + "/users/getPhoto?imageID=" + data.photoURL);
+            setEmail(data.email);
+        }
+    })
 }
 
 const styles = {

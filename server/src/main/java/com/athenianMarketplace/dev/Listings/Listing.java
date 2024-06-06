@@ -1,14 +1,12 @@
 package com.athenianMarketplace.dev.Listings;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
+@Table(uniqueConstraints = {@UniqueConstraint(columnNames = {"title", "userId"})})
 public class Listing {
     @Id
     @GeneratedValue(strategy=GenerationType.SEQUENCE)
@@ -18,6 +16,7 @@ public class Listing {
     private Integer price;
     private Integer itemCondition;
     private String location;
+    @Column(length = 1024) //bigger so no overflow with
     private List<String> imageIds;
     private Integer userId;
     private LocalDateTime creationDate;

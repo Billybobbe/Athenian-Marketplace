@@ -1,6 +1,9 @@
 package com.athenianMarketplace.dev.Users;
 
 import jakarta.persistence.*;
+import org.springframework.cglib.core.Local;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name="users")
@@ -10,8 +13,10 @@ public class User {
     private Integer id;
     private String accountPhotoId;
     private String name;
+    @Column(unique = true)
     private String email;
     private String password;
+    private LocalDateTime joinDate;
 
     public Integer getId() {
         return id;
@@ -50,5 +55,13 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public LocalDateTime getJoinDate(){
+        return joinDate;
+    }
+
+    public void setJoinDate(LocalDateTime joinDate){
+        this.joinDate = joinDate;
     }
 }

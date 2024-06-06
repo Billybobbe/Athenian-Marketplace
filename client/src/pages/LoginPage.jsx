@@ -1,4 +1,5 @@
 import {useState} from 'react'
+import { API } from '../App';
 
 export default function LoginPage(){
     const [error, setError] = useState(null);
@@ -26,7 +27,7 @@ export default function LoginPage(){
 
 function login(email, password, setError){
     var data = {"email" : email, "password" : password};
-    fetch("/login/getAuthKey", {
+    fetch(API + "/login/getAuthKey", {
         method: "POST",
         headers: {
             "Content-type" : "application/json",

@@ -1,4 +1,5 @@
 import {useState} from 'react'
+import { API } from '../App';
 
 export default function CreateAccountPage(){
     const [error, setError] = useState(null);
@@ -29,7 +30,10 @@ export default function CreateAccountPage(){
                 {status=="authentication" &&
                     <div id="twoFactorAuth" style={styles.twoFactorAuth}>
                         <text>Enter verification code</text>
-                        <input value={verifyCode} placeholder="6 digit code sent to email" onChange={(value)=>{setVerifyCode(value.target.value)}}></input>
+                        <div>
+                            <input value={verifyCode} placeholder="6 digit code sent to email" onChange={(value)=>{setVerifyCode(value.target.value)}}></input>
+                            <button onMouseDown={()=>resendVerifyCode(email, setError)}>Resend</button>
+                        </div>
                     </div>}
                 <button style={{marginTop: 30}} onMouseDown={()=>{createAccount(status, setStatus, setError, email, password, userName, verifyCode, profilePhoto)}}>Create Account</button>
                 <text>{error}</text>
@@ -41,7 +45,7 @@ export default function CreateAccountPage(){
 function createAccount(status, setStatus, setError, email, password, userName, verifyCode, profilePhoto){
     if(status==null){
         var data = {"email" : email};
-        fetch("/create-account/registerAccountForVerification", {
+        fetch(API + "/create-account/registerAccountForVerification", {
             method: "POST",
             headers: {
                 "Content-type" : "application/json",
@@ -60,7 +64,7 @@ function createAccount(status, setStatus, setError, email, password, userName, v
     }
     if(status=="authentication"){
         var data = {"email" : email, "password" : password, "name" : userName, "photo" : profilePhoto, "verifyCode" : verifyCode};
-        fetch("/create-account/registerAccount", {
+        fetch(API + "/create-account/registerAccount", {
             method: "POST",
             headers: {
                 "Content-type" : "application/json",
@@ -75,6 +79,23 @@ function createAccount(status, setStatus, setError, email, password, userName, v
             }
         });
     }
+}
+function resendVerifyCode(email, setError){
+    var data = {"email" : email};
+        fetch(API + "/create-account/registerAccountForVerification", {
+            method: "POST",
+            headers: {
+                "Content-type" : "application/json",
+            },
+            body: JSON.stringify(data),
+        }).then(response=>response.json()).then(data=>{
+            if(data.error == "0"){
+                setError(null);
+            }
+            else{
+                setError(data.data);
+            }
+        });
 }
 
 function toBase64Image(imageFile, changeImageFunction){

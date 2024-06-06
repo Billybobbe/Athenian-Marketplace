@@ -10,7 +10,7 @@ import java.time.*;
 @Entity
 public class AuthKey {
     @Id
-    @GeneratedValue(strategy= GenerationType.SEQUENCE)
+    @GeneratedValue(strategy= GenerationType.UUID)
     private Integer keyId;
     private Integer userId;
     private LocalDateTime expiration;

@@ -1,0 +1,13 @@
+ {
+ "Computer": {
+        "Brand": "string",
+        "Model": "string",
+        "Year": "int"
+    },
+"Textbook": {
+        "Subject": "string",
+        "Author": "string",
+        "Year" : "string",
+        "Annotated": "bool"
+    }
+}

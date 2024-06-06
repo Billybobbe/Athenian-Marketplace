@@ -1,15 +1,17 @@
-export default function ListingTile({image, title, location, price}){
+export default function ListingTile({image, title, location, price, id}){
     return(
-        <div id="listingTile" style={styles.listingTile}>
+        <a href={"/listing/"+id} id="listingTile" style={styles.listingTile}>
             <text style={styles.title}>{title}</text>
             <img style={styles.image} src={image}/>
             <text style={styles.price}>${price}</text>
             <text style={styles.locaion}>{location}</text>
-        </div>
+        </a>
     );
 }
 const styles = {
     listingTile: {
+        color: "black",
+        textDecoration: "none",
         height: '300px',
         width: '230px',
         border: '3px solid black',

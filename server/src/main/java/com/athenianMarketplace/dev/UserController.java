@@ -1,18 +1,23 @@
 package com.athenianMarketplace.dev;
 
 import com.athenianMarketplace.dev.AuthKeys.AuthKeyRepository;
-import com.athenianMarketplace.dev.Responses.ServerResponse;
+import com.athenianMarketplace.dev.Requests.UserByAuthRequest;
+import com.athenianMarketplace.dev.Requests.UserRequest;
 import com.athenianMarketplace.dev.Responses.UserResponse;
 import com.athenianMarketplace.dev.Users.User;
 import com.athenianMarketplace.dev.Users.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
-import javax.imageio.ImageIO;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
+import java.net.MalformedURLException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Map;
 
 @Controller
 @RequestMapping("/users")
@@ -23,35 +28,43 @@ public class UserController {
     private AuthKeyRepository authKeyRepository;
 
     @PostMapping("/{id}")
-    public @ResponseBody UserResponse getUser(@RequestParam Integer authKey, @PathVariable Integer userId){
-        if(!authKeyRepository.existsById(authKey)){
+    public @ResponseBody UserResponse getUser(@RequestBody UserRequest request){
+        if(!authKeyRepository.existsById(request.authKey)){
             return(new UserResponse(1, "Failed. Auth key invalid."));
         }
-        if(!userRepository.existsById(userId)){
+        if(!userRepository.existsById(request.userId)){
             return(new UserResponse(1, "Failed. UserId invalid."));
         }
-        User foundUser = userRepository.findById(userId).get();
-        return(new UserResponse(0, "Success.", foundUser.getName(), foundUser.getEmail(), loadImage(foundUser.getAccountPhotoId())));
+        User foundUser = userRepository.findById(request.userId).get();
+        String month = foundUser.getJoinDate().getMonth().toString();
+        month = (month!=null) ? month.substring(0, 1) + month.substring(1).toLowerCase() : ""; //make all fancy capitalization unless not recorded for some reason, then just include as empty string
+        return(new UserResponse(0, "Success.", foundUser.getName(), foundUser.getEmail(), foundUser.getAccountPhotoId(), month + " " + foundUser.getJoinDate().getYear()));
     }
     @PostMapping("/authKeyUser")
-    public @ResponseBody UserResponse getByAuthKey(@RequestParam Integer authKey){
-        if(!authKeyRepository.existsById(authKey)){
+    public @ResponseBody UserResponse getByAuthKey(@RequestBody UserByAuthRequest request){
+        if(request.authKey==null || !authKeyRepository.existsById(request.authKey)){
             return(new UserResponse(1, "Failed. Auth key invalid."));
         }
-        User authKeyUser = userRepository.findById(authKeyRepository.findById(authKey).get().getUserId()).get();
-        return(new UserResponse(0, "Success.", authKeyUser.getName(), authKeyUser.getEmail(), loadImage(authKeyUser.getAccountPhotoId())));
+        User authKeyUser = userRepository.findById(authKeyRepository.findById(request.authKey).get().getUserId()).get();
+        String month = authKeyUser.getJoinDate().getMonth().toString();
+        month = (month!=null) ? month.substring(0, 1) + month.substring(1).toLowerCase() : "";
+        return(new UserResponse(0, "Success.", authKeyUser.getName(), authKeyUser.getEmail(), authKeyUser.getAccountPhotoId(), month + " " + authKeyUser.getJoinDate().getYear()));
     }
 
-    private BufferedImage loadImage(String imagePath){
-        File imageFile = new File(imagePath+".jpg");
-        BufferedImage image = null;
+    @GetMapping("/getPhoto")
+    public ResponseEntity<Resource> getPhoto(@RequestParam String imageID){
+        Path p = Paths.get("./res/userImages/" + imageID + ".jpg");
+        if(imageID.equals("undefined")){
+            p = Paths.get("./res/utilImages/noImage.jpg");
+        }
+        Resource r;
         try {
-            image = ImageIO.read(imageFile);
+            r = new UrlResource(p.toUri());
+        } catch (MalformedURLException e) {
+            throw new RuntimeException(e);
         }
-        catch(IOException e){
-            System.out.println("Failed to load image.");
-        }
-        return image;
+        return ResponseEntity.ok().contentType(MediaType.IMAGE_JPEG).body(r);
     }
+
 
 }

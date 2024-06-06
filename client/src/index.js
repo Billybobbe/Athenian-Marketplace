@@ -11,6 +11,7 @@ import CreateAccountPage from './pages/CreateAccount'
 import ResetAccountPage from './pages/ResetAccountPage';
 import CreateListingPage from './pages/CreateListingPage';
 import ListingPage from './pages/ListingPage';
+import HomePage from './pages/HomePage';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 const router = createBrowserRouter([{
@@ -27,7 +28,7 @@ const router = createBrowserRouter([{
   element: <CreateListingPage/>
 },
 {
-  path: '/listing',
+  path: '/listing/:listingId',
   element: <ListingPage/>
 },
 {
@@ -42,6 +43,10 @@ const router = createBrowserRouter([{
   path: '/forgot-account',
   element: <ResetAccountPage/>
 },
+{
+  path: '/home',
+  element: <HomePage/>
+}
 ]);
 
 root.render(
